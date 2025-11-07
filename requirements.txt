@@ -1,0 +1,8 @@
+faicons
+pandas
+plotly.express
+numpy
+pathlib
+shinywidgets
+shiny
+shinyswatch
