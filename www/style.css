@@ -1,0 +1,14 @@
+:root 
+{
+--bs-link-color: #555555;
+--bs-nav-pills-link-active-bg:#af588e;
+--bslib-page-sidebar-title-bg: #fff;
+--bslib-page-sidebar-title-color: #000;
+}
+
+.nav-pills {
+    --bs-nav-pills-link-active-color: #fff;
+    --bs-nav-pills-link-active-bg: #af588e;
+    --bs-nav-pills-link-hover-color: #000;
+    --bs-nav-pills-link-hover-decoration: underline;
+}
