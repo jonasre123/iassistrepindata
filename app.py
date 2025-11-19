@@ -18,12 +18,7 @@ ICONS = {
 app_ui = ui.page_sidebar(
     ui.sidebar(
         ui.include_css("www/style.css"),
-        ui.input_selectize(
-            "select_retype",
-            "Select a Resource Type",
-            cv_resourceType,
-            selected="All"
-        ),
+        
         ui.input_selectize(
             "select_themes",
             "Select theme",
@@ -35,10 +30,16 @@ app_ui = ui.page_sidebar(
             "select_region",
             "Select region",
             cv_region,
-            multiple=False,
+            multiple=True,
             selected="All"
         ),
         ui.input_text("free_text", "Search for text", "Enter text..."),   
+        ui.input_selectize(
+            "select_retype",
+            "Select a Resource Type",
+            cv_resourceType,
+            selected="All"
+        ),
         bg="#f8f8f8"),  
     ui.navset_pill(  
         ui.nav_panel("Overview", 
@@ -85,11 +86,11 @@ def server(input, output, session):
             filt_themes = (lgbtq["Themes"].notnull()) & (lgbtq["Themes"].str.contains(input.select_themes()))
 
         # filter for Region
-        if input.select_region() == "All":
+        if ''.join(input.select_region()) == "All":
             filt_region = (lgbtq["GeographicRegion"] != "All") | (lgbtq["GeographicRegion"].isnull())
         else:
-            filt_region = (lgbtq["GeographicRegion"].notnull()) & (lgbtq["GeographicRegion"].str.contains(input.select_region()))
-        
+#            filt_region = (lgbtq["GeographicRegion"].notnull()) & (lgbtq["GeographicRegion"].str.contains(input.select_region()))
+            filt_region = (lgbtq["GeographicRegion"].notnull()) & (lgbtq["GeographicRegion"].isin(list(input.select_region())))
         # free text input
         if input.free_text() == "Enter text...":
             filt_free = (lgbtq["GeographicRegion"] !="All") | (lgbtq["GeographicRegion"].isnull())
