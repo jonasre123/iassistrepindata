@@ -12,3 +12,6 @@
     --bs-nav-pills-link-hover-color: #000;
     --bs-nav-pills-link-hover-decoration: underline;
 }
+.btn-primary {
+    --bs-btn-color: #000;
+}
