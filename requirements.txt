@@ -6,3 +6,4 @@ pathlib
 shinywidgets
 shiny
 shinyswatch
+io
