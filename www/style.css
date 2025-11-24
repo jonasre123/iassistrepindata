@@ -15,3 +15,8 @@
 .btn-primary {
     --bs-btn-color: #000;
 }
+
+.irs-to, .irs-from {
+
+    background-color: #af588e;
+}
