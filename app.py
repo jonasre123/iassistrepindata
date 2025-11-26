@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 import io
-from shared import app_dir, lgbtq, cv_resourceType, cv_producer, cv_themes, cv_subject, cv_country, cv_region, cv_adminLevel, cv_unitAnalysis,cv_longitudinal, cv_language, cv_restrictions, pub_min, pub_max
+from shared import app_dir, lgbtq, cv_columns,cv_resourceType, cv_producer, cv_themes, cv_subject, cv_country, cv_region, cv_adminLevel, cv_unitAnalysis,cv_longitudinal, cv_language, cv_restrictions, pub_min, pub_max
 
 from shinywidgets import output_widget, render_plotly
 from shiny import App, reactive, render, ui
@@ -61,12 +61,23 @@ app_ui = ui.page_sidebar(
     ui.navset_pill(  
         ui.nav_panel("Overview", 
                      ui.layout_column_wrap(
-                         ui.value_box("Number of resources",ui.output_text("selected_entries")),
+                         ui.value_box("Number of resources in selection",ui.output_text("selected_entries")),
                          
                     fill=False,),
                     ui.layout_column_wrap(
-                        ui.card("Top resource types in selection",ui.output_data_frame("top_resourcetypes")),
-                        ui.card("Top regions in selection", output_widget("regions_pie")), 
+                        ui.card("Top resource types in selection",
+                                ui.navset_card_tab(
+
+                                    ui.nav_panel("Table",ui.output_data_frame("top_resourcetypes")),
+                                    ui.nav_panel("Chart",output_widget("retype_bar") ),
+                                ),
+                               ),
+                        ui.card("Top regions in selection", 
+                                ui.navset_card_tab(
+                                    ui.nav_panel("Table",ui.output_data_frame("top_regions")),
+                                    ui.nav_panel("Chart",output_widget("regions_pie"))
+                                ),
+                                ), 
 
                     fill=False),
                      ),
@@ -76,8 +87,16 @@ app_ui = ui.page_sidebar(
                              
                               ui.card_header("Resources overview"),
                               ui.div(
+                                  ui.input_selectize(
+                                      "select_columns",
+                                      "Select columns to display",
+                                      cv_columns,
+                                      multiple=True,
+                                      selected=["Title","PubDate"],
+                                      width='45%'
+                                  ),
                                   ui.download_button("download_filtered", label="Download filtered data as .csv", class_="btn-primary"),
-                                  ui.input_action_button("grid_details","Show details for selected row")),
+                                  ui.input_action_button("grid_details","Show details for selected row", class_="btn-primary")),
                               
                               ui.output_data_frame("grid_table"),                              
                           ),
@@ -86,6 +105,7 @@ app_ui = ui.page_sidebar(
                     
                     ),
         ui.nav_panel("About this page", "Panel C content"),
+    
         id="tab"
     ),
     theme=shinyswatch.theme.lux,
@@ -115,7 +135,7 @@ def server(input, output, session):
         if ''.join(input.select_lang()) == "All":
             filt_lang = (lgbtq["Language"] != "All") | (lgbtq["Language"].isnull())
         else:
-            filt_lang = (lgbtq["Language"].notnull()) & (lgbtq["Language"].isin(list(input.lang())))
+            filt_lang = (lgbtq["Language"].notnull()) & (lgbtq["Language"].isin(list(input.select_lang())))
         
         # filter for Region
         if ''.join(input.select_region()) == "All":
@@ -141,8 +161,16 @@ def server(input, output, session):
         top_restypes.rename(columns={"ResourceType":"Resource Type"}, inplace=True)
         return render.DataGrid(top_restypes) 
     
+    @render_plotly
+    def retype_bar():
+        top_restypes = pd.DataFrame(filtered_data()["ResourceType"].value_counts().head(10))
+        top_restypes.reset_index(drop=False, inplace=True)
+        top_restypes.rename(columns={"ResourceType":"Resource Type"}, inplace=True)
+        retypes_fig = px.bar(top_restypes, "Resource Type", "count")
+        return retypes_fig
+    
     @render.data_frame
-    def top_regions(): # not used
+    def top_regions(): 
         top_regs = pd.DataFrame(filtered_data()["GeographicRegion"].value_counts().head(10))
         top_regs.reset_index(drop=False, inplace=True)
         top_regs.rename(columns={"GeographicRegion":"Region"}, inplace=True)
@@ -159,13 +187,13 @@ def server(input, output, session):
 # create the spreadsheet for "Explore resources" tab
     @render.data_frame 
     def grid_table():
-        cols = ['ID','Title', 'ResourceType', 'PubDate',
-       'GeographicRegion','Language', 'Themes',
-       'Subjects']
+        cols = list(input.select_columns())
+        cols.append("ID")
+
         
         return render.DataGrid(filtered_data()[cols], 
                                 selection_mode="row", 
-                                filters=True)
+                                filters=False)
     
 # details on the selected resource
     @render.text
@@ -248,7 +276,7 @@ def server(input, output, session):
         )
         ui.modal_show(m)
 
-# download of a filtered csv
+# download of a filtered csv button
     @render.download(filename="output.csv")
     def download_filtered():
         data = grid_table.data_view()
