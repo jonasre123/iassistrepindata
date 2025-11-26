@@ -26,3 +26,28 @@ cv_restrictions = ["All","Yes","No","Unknown"]
 #range for publication date slider
 pub_min = lgbtq["PubDate"].min().astype(int)
 pub_max = lgbtq["PubDate"].max().astype(int)
+
+# columns for column selector
+cv_columns = ['Title', 
+'URL', 
+'ResourceType', 
+'Citation', 
+'PubDate',
+'CollectDateStart', 
+'CollectDateEnd', 
+'Producer', 
+'Distributor',
+'Description', 
+'DataMethodType', 
+'Longitudinal', 
+'TimeSpan', 
+'Country',
+'GeographicRegion', 
+'AdminLevel', 
+'UnitAnalysis', 
+'Language', 
+'Themes',
+'Subjects',
+'Restrictions',
+'Notes',
+'AddedUpdated']
