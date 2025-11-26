@@ -12,8 +12,12 @@
     --bs-nav-pills-link-hover-color: #000;
     --bs-nav-pills-link-hover-decoration: underline;
 }
-.btn-primary {
+.btn-primary, .btn-default {
     --bs-btn-color: #000;
+    --bs-btn-border-color: #af588e;
+    --bs-btn-bg: #fff;
+    --bs-btn-hover-bg: #e1c1d6;
+    --bs-btn-hover-color: #000;
 }
 
 .irs-to, .irs-from {
